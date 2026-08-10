@@ -67,14 +67,6 @@ public class  BlackList {
     }
 
 
-    public boolean isNew() {
-        return this.id == null;
-    }
-
-    public boolean existsInDB() {
-        return !isNew();
-    }
-
     // 히스토리 연결 메서드
     public void addHistory(BlackListHistory history) {
         histories.add(history);

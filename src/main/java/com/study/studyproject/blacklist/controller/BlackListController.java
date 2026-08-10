@@ -26,7 +26,7 @@ public class BlackListController {
     // 등록 /
     @PostMapping
     public ResponseEntity<GlobalResultDto> registerOrUpdateBlackList(@RequestBody BlackListCreateRequestDto dto) {
-        return ResponseEntity.ok(blackListService.registerOrUpdateBlackList(dto));
+        return ResponseEntity.ok(blackListService.reportBlackList(dto));
     }
 
     // 수정

@@ -64,7 +64,7 @@ class BlackListServiceImplTest {
         BlackListCreateRequestDto requestDto = new BlackListCreateRequestDto(member1.getEmail().address(), "pishing", 1);
 
         //when
-        GlobalResultDto register = blackListService.registerOrUpdateBlackList(requestDto);
+        GlobalResultDto register = blackListService.reportBlackList(requestDto);
 
         //then
         List<BlackList> all = blackListRepository.findAll();
@@ -82,12 +82,12 @@ class BlackListServiceImplTest {
         BlackListCreateRequestDto requestDto = new BlackListCreateRequestDto(member1.getEmail().address(),  "pishing", 1);
 
         //when
-        GlobalResultDto register = blackListService.registerOrUpdateBlackList(requestDto);
+        GlobalResultDto register = blackListService.reportBlackList(requestDto);
 
         BlackListCreateRequestDto requestDto2 = new BlackListCreateRequestDto(member1.getEmail().address() , "변경-욕설", 2);
 
         //when
-        GlobalResultDto res = blackListService.registerOrUpdateBlackList(requestDto2);
+        GlobalResultDto res = blackListService.reportBlackList(requestDto2);
 
         //then
         List<BlackList> blackList = blackListRepository.findAll();
@@ -158,7 +158,7 @@ class BlackListServiceImplTest {
         BlackListCreateRequestDto requestDto = new BlackListCreateRequestDto(member1.getEmail().address(), "pishing", 1);
 
         //when
-        blackListService.registerOrUpdateBlackList(requestDto);
+        blackListService.reportBlackList(requestDto);
 
         //then
         assertThat(redisTemplate.hasKey(cacheKey)).isFalse();
