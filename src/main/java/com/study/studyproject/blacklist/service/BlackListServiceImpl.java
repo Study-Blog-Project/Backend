@@ -53,30 +53,43 @@ public class BlackListServiceImpl implements BlackListService {
     }
 
     @Override
-    public GlobalResultDto registerOrUpdateBlackList(BlackListCreateRequestDto request) {
-
+    public GlobalResultDto reportBlackList(BlackListCreateRequestDto request) {
         String hash = HashUtil.sha256(request.getRawValue());
-        BlackList findByBlackList = blacklistRepository.findByHashValue(hash)
-                .orElseGet(() -> BlackList.create( hash, request.getReason()));
 
-        //history reposeitory에서 가져오기
+        return blacklistRepository.findByHashValue(hash)
+                .map(existing -> escalateBlackList(existing, hash, request))
+                .orElseGet(() -> registerBlackList(hash, request));
+    }
+
+    // 최초 등록: 신규 엔티티 생성 후 저장
+    private GlobalResultDto registerBlackList(String hash, BlackListCreateRequestDto request) {
+        BlackList blackList = BlackList.create(hash, request.getReason());
+        BlacklistStatus status = escalateStatus(blackList, hash, request.getDurationMonths());
+        blacklistRepository.save(blackList);
+
+        recordHistoryAndEvict(blackList, hash, request.getReason(), status);
+        return new GlobalResultDto("블랙리스트 등록 완료", HttpStatus.OK.value());
+    }
+
+    // 재등록(재범): 기존 엔티티의 사유/정지기간을 갱신
+    private GlobalResultDto escalateBlackList(BlackList blackList, String hash, BlackListCreateRequestDto request) {
+        BlacklistStatus status = escalateStatus(blackList, hash, request.getDurationMonths());
+        blackList.updateReason(request.getReason());
+
+        recordHistoryAndEvict(blackList, hash, request.getReason(), status);
+        return new GlobalResultDto("블랙리스트 등록 완료", HttpStatus.OK.value());
+    }
+
+    // 위반 횟수를 조회해 정지기간/영구정지 여부를 재계산
+    private BlacklistStatus escalateStatus(BlackList blackList, String hash, Integer durationMonths) {
         long violationCount = blackListHistoryRepository.countByHashValueAndAction(hash, REGISTER);
-        BlacklistStatus blacklistStatus = findByBlackList.setDuration(request.getDurationMonths(), violationCount);
+        return blackList.setDuration(durationMonths, violationCount);
+    }
 
-
-        if (findByBlackList.isNew()) { //값이 없다면
-            blacklistRepository.save(findByBlackList);
-        }
-
-        if(findByBlackList.existsInDB()){
-            findByBlackList.updateReason(request.getReason());
-        }
-
-        BlackListHistory blackListHistory = BlackListHistory.save(BlacklistAction.REGISTER, findByBlackList,hash,BlackType.EMAIL , request.getReason(), blacklistStatus);
+    private void recordHistoryAndEvict(BlackList blackList, String hash, String reason, BlacklistStatus status) {
+        BlackListHistory blackListHistory = BlackListHistory.save(BlacklistAction.REGISTER, blackList, hash, BlackType.EMAIL, reason, status);
         blackListHistoryRepository.save(blackListHistory);
         evictBlacklistCache(hash);
-
-        return new GlobalResultDto("블랙리스트 등록 완료", HttpStatus.OK.value());
     }
 
     @Override
