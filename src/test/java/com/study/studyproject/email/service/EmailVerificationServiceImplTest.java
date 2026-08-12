@@ -6,12 +6,9 @@ import com.study.studyproject.email.repository.EmailVerificationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.Duration;
 
@@ -33,7 +30,7 @@ class EmailVerificationServiceImplTest {
     private EmailVerificationRepository emailVerificationRepository;
 
     @Mock
-    private JavaMailSender mailSender;
+    private EmailSender emailSender;
 
     private static final String EMAIL = "test@test.com";
     private static final String HASH = HashUtil.sha256(EMAIL);
@@ -49,10 +46,7 @@ class EmailVerificationServiceImplTest {
 
         // then
         verify(emailVerificationRepository).saveCode(eq(HASH), any(), eq(Duration.ofMinutes(5)));
-
-        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        verify(mailSender).send(captor.capture());
-        assertThat(captor.getValue().getTo()).contains(EMAIL);
+        verify(emailSender).send(eq(EMAIL), any());
     }
 
     @Test
@@ -64,7 +58,7 @@ class EmailVerificationServiceImplTest {
         // when & then
         assertThatThrownBy(() -> emailVerificationService.sendCode(EMAIL))
                 .isInstanceOf(BadRequestException.class);
-        verify(mailSender, never()).send(any(SimpleMailMessage.class));
+        verify(emailSender, never()).send(any(), any());
     }
 
     @Test

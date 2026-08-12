@@ -5,8 +5,6 @@ import com.study.studyproject.global.hash.HashUtil;
 import com.study.studyproject.email.repository.EmailVerificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -25,7 +23,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final EmailVerificationRepository emailVerificationRepository;
-    private final JavaMailSender mailSender;
+    private final EmailSender emailSender;
 
     @Override
     public void sendCode(String email) {
@@ -36,9 +34,8 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         }
 
         String code = generateCode();
-        sendMail(email, code);
-
         emailVerificationRepository.saveCode(hash, code, CODE_TTL);
+        emailSender.send(email, code);
     }
 
     @Override
@@ -72,13 +69,5 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private String generateCode() {
         int code = SECURE_RANDOM.nextInt(1_000_000);
         return String.format("%06d", code);
-    }
-
-    private void sendMail(String email, String code) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("[Start Study] 이메일 인증번호");
-        message.setText("인증번호는 [" + code + "] 입니다. 5분 이내에 입력해주세요.");
-        mailSender.send(message);
     }
 }
