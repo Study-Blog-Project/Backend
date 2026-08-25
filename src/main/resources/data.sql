@@ -175,7 +175,6 @@ insert into post_like (board_id, created_date, last_modified_date, member_id) va
 insert into post_like (board_id, created_date, last_modified_date, member_id) values (27, '2026-07-31 19:08:09.198', '2026-07-31 19:08:09.198', 21);
 insert into post_like (board_id, created_date, last_modified_date, member_id) values (36, '2026-07-31 19:08:09.198', '2026-07-31 19:08:09.198', 41);
 insert into post_like (board_id, created_date, last_modified_date, member_id) values (9, '2026-07-31 19:08:09.198', '2026-07-31 19:08:09.198', 35);
-insert into post_like (board_id, created_date, last_modified_date, member_id) values (3, '2026-07-31 19:08:09.198', '2026-07-31 19:08:09.198', 3);
 insert into post_like (board_id, created_date, last_modified_date, member_id) values (25, '2026-07-31 19:08:09.198', '2026-07-31 19:08:09.198', 36);
 insert into post_like (board_id, created_date, last_modified_date, member_id) values (34, '2026-07-31 19:08:09.198', '2026-07-31 19:08:09.198', 1);
 insert into post_like (board_id, created_date, last_modified_date, member_id) values (6, '2026-07-31 19:08:09.198', '2026-07-31 19:08:09.198', 25);

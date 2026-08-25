@@ -13,6 +13,7 @@ import com.study.studyproject.postlike.domain.PostLikeState;
 import com.study.studyproject.postlike.dto.PostLikeOneResponseDto;
 import com.study.studyproject.postlike.repository.PostLikeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +51,11 @@ public class PostLikeService {
         if (postLike.isPresent()) {
             throw new BadRequestException(POST_LIKE_DUPLICATED);
         }
-        postLikeRepository.save(PostLike.create(member, board));
+        try {
+            postLikeRepository.save(PostLike.create(member, board));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException(POST_LIKE_DUPLICATED);
+        }
         return new GlobalResultDto("관심글이 추가되었습니다.", HttpStatus.OK.value());
     }
 

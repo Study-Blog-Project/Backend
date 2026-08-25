@@ -18,7 +18,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "postLike")
+@Table(name = "postLike", uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "board_id"}))
 public class PostLike extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
